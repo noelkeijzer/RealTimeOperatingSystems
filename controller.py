@@ -82,10 +82,13 @@ def cm2pulse(dist):
 
 def main():
     location = get_location()
-    if location > 0:
-        right_deg(location)
-    else:
-        left_deg(abs(location))
+    #if location > 0:
+    #    right_deg(location)
+    #else:
+    #    left_deg(abs(location))
+    fwd()
+    time.sleep(2)
+    stop()
     time.sleep(2)
 
 while True:
