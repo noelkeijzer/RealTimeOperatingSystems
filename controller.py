@@ -79,17 +79,30 @@ def cm2pulse(dist):
         print 'revs',revs
         print 'pulses',pulses
     return pulses
+    
+def do180():
+    '''
+    Turn the vehicle 180 degrees as fast as possible.
+    '''
+    ## set servo so it is currently facing forward.
+    pulse= int(90/DPR)
+    enc_tgt(1,0,pulse)
+    enc_tgt(0,1,(0 - pulse))
+    fwd()
+    
 
 def main():
-    location = get_location()
-    #if location > 0:
-    #    right_deg(location)
-    #else:
-    #    left_deg(abs(location))
-    fwd()
-    time.sleep(2)
+    do180()
+    while True:
+        location = get_location()
+        if location > 0:
+            right_deg(5)
+        else:
+            left_deg(5)
+        enc_tgt(1,1,1)
+        fwd()
+        if (reached_destination):
+            break
     stop()
-    time.sleep(2)
 
-while True:
-    main()
+main()
