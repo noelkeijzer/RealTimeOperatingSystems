@@ -85,24 +85,29 @@ def do180():
     Turn the vehicle 180 degrees as fast as possible.
     '''
     ## set servo so it is currently facing forward.
-    pulse= int(90/DPR)
-    enc_tgt(1,0,pulse)
-    enc_tgt(0,1,(0 - pulse))
-    fwd()
+    enc_tgt(1,0,300)
+    left()
+    time.sleep(0.95)
+    stop()
     
 
 def main():
     do180()
-    while True:
-        location = get_location()
+    stop()
+    destinations = [1,-1,1,-1,1,-1,1,-1,1]
+    i = 0
+    j = 0
+    while j < 100:
+        ##location = get_location()
+        location = destinations[i]
         if location > 0:
             right_deg(5)
         else:
             left_deg(5)
         enc_tgt(1,1,1)
         fwd()
-        if (reached_destination):
+        if reached_destination():
             break
-    stop()
-
+        i = (i + 1) % 9
+        j += 1
 main()
