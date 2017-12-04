@@ -85,7 +85,7 @@ def do180():
     Turn the vehicle 180 degrees as fast as possible.
     '''
     ## set servo so it is currently facing forward.
-    enc_tgt(1,0,300)
+    enc_tgt(1,0,255)
     left()
     time.sleep(0.95)
     stop()
