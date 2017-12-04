@@ -91,23 +91,27 @@ def do180():
     stop()
     
 
-def main():
+def main(queue):
     do180()
     stop()
     destinations = [1,-1,1,-1,1,-1,1,-1,1]
     i = 0
     j = 0
-    while j < 100:
-        ##location = get_location()
-        location = destinations[i]
-        if location > 0:
-            right_deg(5)
+    while j < 500:
+        if not queue.empty():
+            location = queue.get()
         else:
+            location = destinations[i]
+        if location == 1:
+            right_deg(5)
+        else if location == -1:
             left_deg(5)
-        enc_tgt(1,1,1)
-        fwd()
-        if reached_destination():
+        else if location == 0:
+            stop()
             break
+        else:
+            enc_tgt(1,1,1)
+            fwd()
         i = (i + 1) % 9
         j += 1
 main()
