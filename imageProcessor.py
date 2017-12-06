@@ -16,11 +16,15 @@ def get_signal():
     camera.capture(picture, 'rgb')
     (middle_point, height) = imageRecognizer.bottle_detection(picture)
     if height / camera_resolution[1] >= stop_percentage:
+        print("[Thread processor]\t: send stopping signal to the queue")
         return 0
     elif middle_point <= resolution_middle - camera_resolution[0] * inaccuracy:
+        print("[Thread processor]\t: send go left signal to the queue")
         return -1
     elif middle_point >= resolution_middle + camera_resolution[0] * inaccuracy:
+        print("[Thread processor]\t: send go right signal to the queue")
         return 1
+    print("[Thread processor]\t: no bottle found in picture")
 
 
 def main(queue, running):
@@ -29,3 +33,5 @@ def main(queue, running):
         if signal is not None:
             queue.put(get_signal())
             queue.join()
+
+    print("[Thread processor]\t: stopping")

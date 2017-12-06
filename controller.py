@@ -91,13 +91,13 @@ def do180():
     stop()
     
 
-def main(queue):
+def main(queue, running):
     do180()
     stop()
     destinations = [1,-1,1,-1,1,-1,1,-1,1]
     i = 0
     j = 0
-    while j < 500:
+    while j < 500 && running:
         if not queue.empty():
             location = queue.get()
         else:
@@ -114,4 +114,4 @@ def main(queue):
             fwd()
         i = (i + 1) % 9
         j += 1
-main()
+    print("[Thread controller]\t: stopping")

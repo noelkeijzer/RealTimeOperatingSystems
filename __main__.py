@@ -7,4 +7,9 @@ import queue
 def main():
     running = True
     controller_queue = queue.Queue
-    thread.start_new_thread(imageProcessor.main(controller_queue, running))
+    try:
+        thread.start_new_thread(imageProcessor.main(controller_queue, running))
+        thread.start_new_thread(controller.main(controller_queue, running))
+    except (KeyboardInterrupt, SystemExit):
+        running = False
+        print("[Thread main\t: stopping")
