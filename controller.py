@@ -97,16 +97,16 @@ def main(queue, running):
     destinations = [1,-1,1,-1,1,-1,1,-1,1]
     i = 0
     j = 0
-    while j < 500 && running:
+    while j < 500 and running:
         if not queue.empty():
             location = queue.get()
         else:
             location = destinations[i]
         if location == 1:
             right_deg(5)
-        else if location == -1:
+        elif location == -1:
             left_deg(5)
-        else if location == 0:
+        elif location == 0:
             stop()
             break
         else:
