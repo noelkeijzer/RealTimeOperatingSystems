@@ -1,20 +1,26 @@
 import imageRecognizer
 import picamera
-import numpy as np
+import picamera.array as pa
 
+# define the camera and its settings
+camera_resolution = (1024, 768)
+camera = picamera.PiCamera()
+camera.rotation = 180
+camera.resolution = camera_resolution
+
+# define the parameters
 inaccuracy = 0.10
 stop_percentage = 0.8
-camera_resolution = (1024, 768)
 resolution_middle = camera_resolution[0] / 2
-camera = picamera.PiCamera()
-camera.vflip = True
-camera.resolution = camera_resolution
+
+# define the buffer to use for picture processing
+picture_buffer = pa.PiRGBArray(camera)
 
 
 def get_signal():
-    picture = np.empty((768, 1024, 3), dtype=np.uint8)
-    camera.capture(picture, 'rgb')
-    (middle_point, height) = imageRecognizer.bottle_detection(picture)
+    camera.capture(picture_buffer, 'rgb')
+    (middle_point, height) = imageRecognizer.bottle_detection(picture_buffer.array)
+    picture_buffer.truncate(0)
     if height / camera_resolution[1] >= stop_percentage:
         print "[Thread processor]\t: send stopping signal to the queue"
         return 0
