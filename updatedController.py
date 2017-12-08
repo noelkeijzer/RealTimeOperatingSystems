@@ -14,7 +14,7 @@ def do180():
     Turn the vehicle 180 degrees as fast as possible.
     '''
     right_rot()
-    sleep(0.5)
+    time.sleep(0.5)
     stop()
 
 def main(queue, running):
