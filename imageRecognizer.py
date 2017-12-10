@@ -2,8 +2,11 @@ import sys
 import cv2
 import numpy as np
 
-debug = False
-output_image_name = 'output.jpg'
+debug = True
+debug_folder = 'debug/'
+img_counter = 0
+output_image_name = 'output'
+output_image_format = '.jpg'
 rectangle_color = (255, 0, 0)
 line_thickness = 10
 
@@ -33,13 +36,7 @@ def bottle_detection_bgr(image):
     mask = cv2.inRange(image, bgr_lower, bgr_upper)
     mask = cv2.erode(mask, None, iterations=2)
     mask = cv2.dilate(mask, None, iterations=2)
-    if debug:
-        (x, y, w, h) = get_absolute_locations(mask)
-        cv2.rectangle(image, (x, y), (x + w, y + h), rectangle_color, line_thickness)
-        cv2.imwrite(output_image_name, image)
-        return x + w / 2, h
-    else:
-        return get_absolute_locations(mask)
+    return write_image(image, mask) if debug else get_absolute_locations(mask)
 
 
 def bottle_detection_hsv(image):
@@ -47,13 +44,23 @@ def bottle_detection_hsv(image):
     mask = cv2.inRange(new_image, hsv_lower, hsv_upper)
     mask = cv2.erode(mask, None, iterations=2)
     mask = cv2.dilate(mask, None, iterations=2)
-    if debug:
-        (x, y, w, h) = get_absolute_locations(mask)
+    return write_image(image, mask) if debug else get_absolute_locations(mask)
+
+
+def write_image(image, mask):
+    global img_counter
+    name = debug_folder + output_image_name + str(img_counter) + output_image_format
+    img_counter += 1
+    result = get_absolute_locations(mask)
+
+    if result is not None:
+        (x, y, w, h) = result
         cv2.rectangle(image, (x, y), (x + w, y + h), rectangle_color, line_thickness)
-        cv2.imwrite(output_image_name, image)
+        cv2.imwrite(name, image)
         return x + w / 2, h
     else:
-        return get_absolute_locations(mask)
+        cv2.imwrite(name, image)
+        return None
 
 
 def get_absolute_locations(mask):
@@ -66,25 +73,28 @@ def get_absolute_locations(mask):
     highest_y = 0
 
     # Loop through all the pixel locations and record the extremes
-    for p in locations:
-        x = p[0][0]
-        y = p[0][1]
-        if x <= lowest_x:
-            lowest_x = x
-        elif x >= highest_x:
-            highest_x = x
+    if locations is not None:
+        for p in locations:
+            x = p[0][0]
+            y = p[0][1]
+            if x <= lowest_x:
+                lowest_x = x
+            elif x >= highest_x:
+                highest_x = x
 
-        if y <= lowest_y:
-            lowest_y = y
-        elif y >= highest_y:
-            highest_y = y
+            if y <= lowest_y:
+                lowest_y = y
+            elif y >= highest_y:
+                highest_y = y
 
-    if debug:
-        # return the absolute values in the (x, y, w, h) format
-        return lowest_x, lowest_y, highest_x - lowest_x, highest_y - lowest_y
+            if debug:
+                # return the absolute values in the (x, y, w, h) format
+                return lowest_x, lowest_y, highest_x - lowest_x, highest_y - lowest_y
+            else:
+                # return the middle point of the bottle and the height of the bottle
+                return lowest_x + ((highest_x - lowest_x) / 2), highest_y - lowest_y
     else:
-        # return the middle point of the bottle and the height of the bottle
-        return lowest_x + ((highest_x - lowest_x) / 2), highest_y - lowest_y
+        return None
 
 
 if __name__ == '__main__':

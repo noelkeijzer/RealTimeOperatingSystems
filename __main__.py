@@ -1,15 +1,26 @@
-import _thread as thread
+import threading
 import controller
 import imageProcessor
-import queue
+import Queue
 
 
 def main():
-    running = True
-    controller_queue = queue.Queue
-    try:
-        thread.start_new_thread(imageProcessor.main(controller_queue, running))
-        thread.start_new_thread(controller.main(controller_queue, running))
-    except (KeyboardInterrupt, SystemExit):
-        running = False
-        print("[Thread main\t: stopping")
+    controller_queue = Queue.Queue()
+
+    # define the two threads
+    image_thread = threading.Thread(target=imageProcessor.main, args=controller_queue)
+    controller_thread = threading.Thread(target=controller.main, args=controller_queue)
+
+    # start the two threads
+    image_thread.start()
+    controller_thread.start()
+
+    # wait for the two threads to finish
+    image_thread.join()
+    controller_thread.join()
+
+    print "[Thread main\t: stopping"
+
+
+if __name__ == '__main__':
+    main()

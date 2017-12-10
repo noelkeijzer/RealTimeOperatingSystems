@@ -1,6 +1,7 @@
 import imageRecognizer
 import picamera
 import picamera.array as pa
+import Queue
 
 # define the camera and its settings
 camera_resolution = (1024, 768)
@@ -18,27 +19,37 @@ picture_buffer = pa.PiRGBArray(camera)
 
 
 def get_signal():
-    camera.capture(picture_buffer, 'rgb')
-    (middle_point, height) = imageRecognizer.bottle_detection(picture_buffer.array)
+    camera.capture(picture_buffer, format='bgr')
+    picture_array = picture_buffer.array
+    result = imageRecognizer.bottle_detection(picture_array)
     picture_buffer.truncate(0)
-    if height / camera_resolution[1] >= stop_percentage:
-        print "[Thread processor]\t: send stopping signal to the queue"
-        return 0
-    elif middle_point <= resolution_middle - camera_resolution[0] * inaccuracy:
-        print "[Thread processor]\t: send go left signal to the queue"
-        return -1
-    elif middle_point >= resolution_middle + camera_resolution[0] * inaccuracy:
-        print "[Thread processor]\t: send go right signal to the queue"
-        return 1
-    print "[Thread processor]\t: no bottle found in picture"
-    return None
+    if result is not None:
+        (middle_point, height) = result
+        if height / camera_resolution[1] >= stop_percentage:
+            print "[Thread processor]\t: send stopping signal to the queue"
+            return 0
+        elif middle_point <= resolution_middle - camera_resolution[0] * inaccuracy:
+            print "[Thread processor]\t: send go left signal to the queue"
+            return -1
+        elif middle_point >= resolution_middle + camera_resolution[0] * inaccuracy:
+            print "[Thread processor]\t: send go right signal to the queue"
+            return 1
+    else:
+        print "[Thread processor]\t: no bottle found in picture"
+        return result
 
 
-def main(queue, running):
-    while running:
-        signal = get_signal()
+def main(queue):
+    signal = get_signal()
+    while signal is not 0:
         if signal is not None:
-            queue.put(get_signal())
+            queue.put(signal)
             queue.join()
+        signal = get_signal()
 
     print "[Thread processor]\t: stopping"
+
+
+if __name__ == '__main__':
+    q = Queue.Queue()
+    main(q)

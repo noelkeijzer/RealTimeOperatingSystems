@@ -91,7 +91,7 @@ def do180():
     stop()
     
 
-def main(queue, running):
+def main(queue):
     do180()
     stop()
     destinations = [1,-1,1,-1,1,-1,1,-1,1]

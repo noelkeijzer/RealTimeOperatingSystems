@@ -1,13 +1,14 @@
-#1/usr/bin/python
+# 1/usr/bin/python
 from gopigo import *
 from imageRecognizer import *
 import time
-import queue
+import Queue
 import sys
 import signal
 
 DEFAULT_LEFT_SPEED = 255
 DEFAULT_RIGHT_SPEED = 200
+
 
 def do180():
     '''
@@ -17,7 +18,8 @@ def do180():
     time.sleep(0.5)
     stop()
 
-def main(queue, running):
+
+def main(queue):
     left_speed = DEFAULT_LEFT_SPEED
     right_speed = DEFAULT_RIGHT_SPEED
     do180()
@@ -25,14 +27,14 @@ def main(queue, running):
     set_right_speed(right_speed)
     fwd()
     j = 0
-    while j < 500 and running:
+    while j < 500:
         try:
             location = queue.get()
             if location == 1:
-                right_speed -= right_speed/20
+                right_speed -= right_speed / 20
                 set_right_speed(right_speed)
             elif location == -1:
-                left_speed -= left_speed/20
+                left_speed -= left_speed / 20
                 set_left_speed(left_speed)
             elif location == 0:
                 stop()
@@ -50,11 +52,13 @@ def main(queue, running):
     print "[Thread controller]\t: stopping"
     stop()
 
+
 def signal_handler(signal, frame):
     print "signal handler called, terminating program."
     stop()
     sys.exit(0)
 
+
 if __name__ == '__main__':
-    q = queue.Queue()
-    main(q, True)
+    q = Queue.Queue()
+    main(q)
