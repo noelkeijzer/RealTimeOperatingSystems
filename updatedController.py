@@ -66,7 +66,7 @@ def main(queue,stop_event):
                     stop()
                     break
             else:
-                if previous_command = 2:
+                if previous_command == 2:
                     left_speed = DEFAULT_LEFT_SPEED
                     right_speed = DEFAULT_RIGHT_SPEED
                     set_left_speed(left_speed)
