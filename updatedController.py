@@ -43,35 +43,30 @@ def main(queue,stop_event):
     fwd()
     print "called forward"
     j = 0
-    previous_command = 2
+    correcting = False
     while j < 500 and not stop_event.is_set():
         try:
             if not queue.empty():
+                correcting = True
                 location = queue.get()
-                if location == 1:
-                    if previous_command == 1:
-                        right_speed -= right_speed / 5
-                    else:
-                        right_speed -= right_speed / 10
+                if location > 0:
+                    right_speed -= right_speed * (location / 200)
                     set_right_speed(right_speed)
                     previous_command = 1
-                elif location == -1:
-                    if previous_command == -1:
-                        left_speed -= left_speed / 5
-                    else:
-                        left_speed -= left_speed / 10
+                elif location < 0:
+                    left_speed += left_speed * (location / 200) # += because location is a negative number. will decrease the left_speed.
                     set_left_speed(left_speed)
                     previous_command = -1
                 elif location == 0:
                     stop()
                     break
             else:
-                if previous_command == 2:
+                if not correcting:
                     left_speed = DEFAULT_LEFT_SPEED
                     right_speed = DEFAULT_RIGHT_SPEED
                     set_left_speed(left_speed)
                     set_right_speed(right_speed)
-                previous_command = 2
+                correcting = False
             j += 1
         except:
             print "exception occurred, terminating program."

@@ -12,7 +12,7 @@ camera.rotation = 180
 camera.resolution = camera_resolution
 
 # define the parameters
-inaccuracy = 0.10
+inaccuracy = 0.05
 stop_percentage = 0.8
 resolution_middle = camera_resolution[0] / 2
 
@@ -31,10 +31,10 @@ def get_signal(image):
             return 0
         elif middle_point <= resolution_middle - camera_resolution[0] * inaccuracy:
             print "[Thread processor]\t: send go left signal to the queue"
-            return -1
+            return middle_point - resolution_middle
         elif middle_point >= resolution_middle + camera_resolution[0] * inaccuracy:
             print "[Thread processor]\t: send go right signal to the queue"
-            return 1
+            return middle_point - resolution_middle
     else:
         print "[Thread processor]\t: no bottle found in picture"
         return result
