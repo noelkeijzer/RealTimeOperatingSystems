@@ -10,7 +10,8 @@ output_image_format = '.jpg'
 rectangle_color = (255, 0, 0)
 line_thickness = 10
 
-hsv = False
+hsv = True 
+clear = True
 
 image1 = cv2.imread('im1.jpg', 1)
 image2 = cv2.imread('im2.jpg', 1)
@@ -23,9 +24,12 @@ test_image = image1
 bgr_lower = np.array([100, 60, 0], dtype="uint8")
 bgr_upper = np.array([200, 180, 50], dtype="uint8")
 
+bgr_lower_distorted = np.array([50, 60, 60], dtype="uint8")
+bgr_upper_distorted = np.array([100,150,150], dtype="uint8")
+
 # For the HSV format
-hsv_lower = (29, 86, 6)
-hsv_upper = (64, 255, 255)
+hsv_lower = (40, 60, 6)
+hsv_upper = (90, 250, 200)
 
 
 def bottle_detection(image):
@@ -33,7 +37,7 @@ def bottle_detection(image):
 
 
 def bottle_detection_bgr(image):
-    mask = cv2.inRange(image, bgr_lower, bgr_upper)
+    mask = cv2.inRange(image, bgr_lower, bgr_upper) if clear else cv2.inRange(image, bgr_lower_distorted, bgr_upper_distorted)
     mask = cv2.erode(mask, None, iterations=2)
     mask = cv2.dilate(mask, None, iterations=2)
     return write_image(image, mask) if debug else get_absolute_locations(mask)
@@ -56,17 +60,18 @@ def write_image(image, mask):
     if result is not None:
         (x, y, w, h) = result
         cv2.rectangle(image, (x, y), (x + w, y + h), rectangle_color, line_thickness)
-        cv2.imwrite(name, image)
-        return x + w / 2, h
+        cv2.imshow('video', image)
+        cv2.waitKey(1)
+        return x, x + w
     else:
-        cv2.imwrite(name, image)
+        cv2.imshow('video', image)
+        cv2.waitKey(1)
         return None
 
 
 def get_absolute_locations(mask):
     # Get all the pixel locations that are white in the mask
     locations = cv2.findNonZero(mask)
-
     lowest_x = sys.maxsize
     lowest_y = sys.maxsize
     highest_x = 0
@@ -79,20 +84,22 @@ def get_absolute_locations(mask):
             y = p[0][1]
             if x <= lowest_x:
                 lowest_x = x
-            elif x >= highest_x:
+            
+            if x >= highest_x:
                 highest_x = x
 
             if y <= lowest_y:
                 lowest_y = y
-            elif y >= highest_y:
+            
+            if y >= highest_y:
                 highest_y = y
 
-            if debug:
-                # return the absolute values in the (x, y, w, h) format
-                return lowest_x, lowest_y, highest_x - lowest_x, highest_y - lowest_y
-            else:
-                # return the middle point of the bottle and the height of the bottle
-                return lowest_x + ((highest_x - lowest_x) / 2), highest_y - lowest_y
+        if debug:
+        # return the absolute values in the (x, y, w, h) format
+            return lowest_x, lowest_y, highest_x - lowest_x, highest_y - lowest_y
+        else:
+        # return the x values
+            return lowest_x, highest_x
     else:
         return None
 
