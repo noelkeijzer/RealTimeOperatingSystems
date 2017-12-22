@@ -43,30 +43,40 @@ def main(queue,stop_event):
     fwd()
     print "called forward"
     j = 0
-    correcting = False
+    correction_counter = 0
+    stop_counter = 0
+    not_found_counter = 0
     while j < 500 and not stop_event.is_set():
         try:
             if not queue.empty():
-                correcting = True
+                correction_counter += 1
                 location = queue.get()
-                if location > 0:
+                print "location: " + str(location)
+                if location > 0 and location < 250:
                     right_speed -= right_speed * (location / 200)
                     set_right_speed(right_speed)
                     previous_command = 1
-                elif location < 0:
+                elif location < 0 and location > -250:
                     left_speed += left_speed * (location / 200) # += because location is a negative number. will decrease the left_speed.
                     set_left_speed(left_speed)
                     previous_command = -1
                 elif location == 0:
-                    stop()
-                    break
-            else:
-                if not correcting:
-                    left_speed = DEFAULT_LEFT_SPEED
-                    right_speed = DEFAULT_RIGHT_SPEED
-                    set_left_speed(left_speed)
-                    set_right_speed(right_speed)
-                correcting = False
+                    correction_counter -= 1
+                    if correction_counter == 0:
+                        left_speed = DEFAULT_LEFT_SPEED
+                        right_speed = DEFAULT_RIGHT_SPEED
+                        set_left_speed(left_speed)
+                        set_right_speed(right_speed)
+                elif location == 999:
+                    stop_counter += 1
+                    if stop_counter > 5:
+                        stop()
+                        break
+                elif location == -999:
+                    not_found_counter += 1
+                    if not_found_counter > 5:
+                        find_bottle(queue)
+                        not_found_counter = 0
             j += 1
         except:
             print "exception occurred, terminating program."

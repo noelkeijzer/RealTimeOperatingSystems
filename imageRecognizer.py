@@ -3,47 +3,10 @@ import cv2
 import numpy as np
 
 debug = True
-debug_folder = 'debug/'
-img_counter = 0
-output_image_name = 'output'
-output_image_format = '.jpg'
-rectangle_color = (255, 0, 0)
-line_thickness = 10
+rectangle_color = (0, 0, 255)
+line_thickness = 5
 
-hsv = True 
-clear = True
-
-image1 = cv2.imread('im1.jpg', 1)
-image2 = cv2.imread('im2.jpg', 1)
-image3 = cv2.imread('im3.jpg', 1)
-image4 = cv2.imread('im4.jpg', 1)
-test_image = image1
-
-# The color range to detect the bottle
-# For the BGR format
-bgr_lower = np.array([100, 60, 0], dtype="uint8")
-bgr_upper = np.array([200, 180, 50], dtype="uint8")
-
-bgr_lower_distorted = np.array([50, 60, 60], dtype="uint8")
-bgr_upper_distorted = np.array([100,150,150], dtype="uint8")
-
-# For the HSV format
-hsv_lower = (40, 60, 6)
-hsv_upper = (90, 250, 200)
-
-
-def bottle_detection(image):
-    return bottle_detection_hsv(image) if hsv else bottle_detection_bgr(image)
-
-
-def bottle_detection_bgr(image):
-    mask = cv2.inRange(image, bgr_lower, bgr_upper) if clear else cv2.inRange(image, bgr_lower_distorted, bgr_upper_distorted)
-    mask = cv2.erode(mask, None, iterations=2)
-    mask = cv2.dilate(mask, None, iterations=2)
-    return write_image(image, mask) if debug else get_absolute_locations(mask)
-
-
-def bottle_detection_hsv(image):
+def bottle_detection(image, hsv_lower, hsv_upper):
     new_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(new_image, hsv_lower, hsv_upper)
     mask = cv2.erode(mask, None, iterations=2)
@@ -52,9 +15,6 @@ def bottle_detection_hsv(image):
 
 
 def write_image(image, mask):
-    global img_counter
-    name = debug_folder + output_image_name + str(img_counter) + output_image_format
-    img_counter += 1
     result = get_absolute_locations(mask)
 
     if result is not None:
@@ -95,10 +55,10 @@ def get_absolute_locations(mask):
                 highest_y = y
 
         if debug:
-        # return the absolute values in the (x, y, w, h) format
+            # return the absolute values in the (x, y, w, h) format
             return lowest_x, lowest_y, highest_x - lowest_x, highest_y - lowest_y
         else:
-        # return the x values
+            # return the x values
             return lowest_x, highest_x
     else:
         return None
