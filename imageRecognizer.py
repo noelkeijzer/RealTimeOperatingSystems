@@ -2,9 +2,15 @@ import sys
 import cv2
 import numpy as np
 
-debug = True
+debug = False
 rectangle_color = (0, 0, 255)
 line_thickness = 5
+
+
+def init(debug_mode):
+    global debug
+    debug = debug_mode
+
 
 def bottle_detection(image, hsv_lower, hsv_upper):
     new_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -19,13 +25,15 @@ def write_image(image, mask):
 
     if result is not None:
         (x, y, w, h) = result
-        cv2.rectangle(image, (x, y), (x + w, y + h), rectangle_color, line_thickness)
-        cv2.imshow('video', image)
-        cv2.waitKey(1)
+        if debug:
+            cv2.rectangle(image, (x, y), (x + w, y + h), rectangle_color, line_thickness)
+            cv2.imshow('video', image)
+            cv2.waitKey(1)
         return x, x + w
     else:
-        cv2.imshow('video', image)
-        cv2.waitKey(1)
+        if debug:
+            cv2.imshow('video', image)
+            cv2.waitKey(1)
         return None
 
 
